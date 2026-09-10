@@ -4,6 +4,7 @@ import { CarCard } from "../components/CarCard";
 import { TrustBar } from "../components/TrustBar";
 import { clp } from "../lib/format";
 import { useData } from "../store/DataProvider";
+import { PageTitle } from "../components/PageTitle";
 
 export function Home() {
   const { published, settings } = useData();
@@ -26,6 +27,10 @@ export function Home() {
 
   return (
     <div className="bg-black">
+      <PageTitle
+        title="Unidades Chile Automotriz"
+        description="Autos seleccionados en Puerto Montt. Precio bajo mercado, inspección 180 puntos y financiamiento Autofin."
+      />
       <div className="flex flex-col">
         <section className="relative isolate min-h-[calc(100svh-4.75rem)] overflow-x-clip bg-black">
           <img

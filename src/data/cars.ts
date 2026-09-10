@@ -1,3 +1,4 @@
+/** Stock de Unidades Chile Automotriz. */
 export type Car = {
   id: string;
   unidad: string;

@@ -4,18 +4,36 @@ import { newLead } from "../lib/leads";
 import type { LeadStatus } from "../store/types";
 import { statusTone } from "./ui";
 
+const ORIGINS = [
+  "todos",
+  "contacto",
+  "reserva",
+  "visita",
+  "prueba-manejo",
+  "tasacion",
+  "financia",
+  "auto-pedido",
+  "alerta-precio",
+  "chat",
+  "whatsapp",
+] as const;
+
 export function LeadsPage() {
   const { leads, saveLead, deleteLead, vehicles } = useData();
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [origen, setOrigen] = useState<(typeof ORIGINS)[number]>("todos");
+  const visible = leads.filter((l) => (origen === "todos" ? true : l.origen.startsWith(origen)));
 
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Leads</h1>
-          <p className="mt-1 text-sm text-white/45">Consultas de tasación, crédito, visita y reserva.</p>
+          <p className="mt-1 text-sm text-white/45">
+            Tasación, crédito, visita, reserva, prueba de manejo, pedidos y chat.
+          </p>
         </div>
       </div>
 
@@ -37,6 +55,21 @@ export function LeadsPage() {
         </button>
       </form>
 
+      <div className="mt-6 flex flex-wrap gap-1.5">
+        {ORIGINS.map((o) => (
+          <button
+            key={o}
+            type="button"
+            onClick={() => setOrigen(o)}
+            className={`rounded-full px-3 py-1.5 text-[11px] font-semibold ${
+              origen === o ? "bg-brand" : "bg-white/5 text-white/55"
+            }`}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+
       <div className="mt-6 overflow-x-auto rounded-2xl border border-white/10">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="bg-white/5 text-[11px] uppercase tracking-wider text-white/40">
@@ -49,7 +82,7 @@ export function LeadsPage() {
             </tr>
           </thead>
           <tbody>
-            {leads
+            {visible
               .slice()
               .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
               .map((l) => {
@@ -88,7 +121,7 @@ export function LeadsPage() {
           </tbody>
         </table>
       </div>
-      {!leads.length && <p className="mt-6 text-sm text-white/40">No hay leads todavía.</p>}
+      {!visible.length && <p className="mt-6 text-sm text-white/40">No hay leads en este filtro.</p>}
     </div>
   );
 }

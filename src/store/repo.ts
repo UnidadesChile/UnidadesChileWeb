@@ -1,5 +1,6 @@
 import { cars } from "../data/cars";
 import { SITE } from "../lib/config";
+import { isUnidadesChileStock } from "../lib/sources";
 import { idbClear, idbDelete, idbGet, idbGetAll, idbPut } from "./idb";
 import {
   DEFAULT_ADMIN,
@@ -16,7 +17,7 @@ const AUTH_ID = "auth";
 const SEEDED = "uc-seed-v1";
 const LOCATION_MIGRATE = "uc-location-pm-v2";
 const L200_MIGRATE = "uc-hero-l200-v1";
-const STOCK_MIGRATE = "uc-stock-unidades-chile-v2";
+const STOCK_MIGRATE = "uc-stock-unidades-chile-v3";
 
 export function nowIso() {
   return new Date().toISOString();
@@ -227,7 +228,9 @@ export async function importBackup(dump: {
 }) {
   if (dump.vehicles?.length) {
     await idbClear("vehicles");
-    for (const v of dump.vehicles) await idbPut("vehicles", v);
+    for (const v of dump.vehicles) {
+      if (isUnidadesChileStock(v.unidad)) await idbPut("vehicles", v);
+    }
     localStorage.setItem(SEEDED, "1");
     localStorage.setItem(STOCK_MIGRATE, "1");
   }

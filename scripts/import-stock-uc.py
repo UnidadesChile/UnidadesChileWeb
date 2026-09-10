@@ -1,13 +1,12 @@
 """
-Importa SOLO la hoja UNIDADES CHILE del stock y, si hay match de patente,
-copia fotos locales o deja placeholder.
-No imprime filas ni patentes: solo totales.
+Importa SOLO la hoja UNIDADES CHILE.
+No lee otras hojas del Excel ni carpetas de otros proyectos.
+Las fotos salen de public/cars/stock de ESTE repo, o de Drive filtrado por patente UC.
 """
 from __future__ import annotations
 
 import json
 import re
-import shutil
 import urllib.request
 from pathlib import Path
 
@@ -17,31 +16,7 @@ STOCK_DIR = ROOT / "public" / "cars" / "stock"
 LOCAL_XLSX = Path(r"C:\Users\mathi\OneDrive\Escritorio\STOCK RG MOTORS_UNIDADES CHILE.xlsx")
 SHEET_ID = "1BG2uR6APbXEMvVvRmdR-Nn0Vko6eobJ6Xam0XX41Ldc"
 DRIVE_FOLDER_ID = "1etQDf-_InkLx8m4_AUMnc8xg2O_137St"
-RG_INVENTORY = Path(r"C:\Users\mathi\OneDrive\Escritorio\rgmotors\public\cars\inventory")
-RG_UPLOADS = Path(r"C:\Users\mathi\OneDrive\Escritorio\rgmotors\public\cars\uploads")
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-
-# Portada canónica: perfil delantero 3/4. Clave = sufijo de patente del slug RG.
-FRONT_COVER_BY_PLATE = {
-    "srcp17": "photo-07.jpg",
-    "lxcy98": "photo-03.jpg",
-    "rpkd45": "photo-08.jpg",
-    "rzvk91": "photo-06.jpg",
-    "ptfc69": "photo-05.jpg",
-    "sfxy80": "photo-10.jpg",
-    "psjj97": "photo-07.jpg",
-    "tsxk53": "photo-02.jpg",
-    "pysy84": "photo-07.jpg",
-    "sfrt83": "photo-03.jpg",
-    "stpz87": "photo-04.jpg",
-    "ssdt39": "photo-11.jpg",
-    "rygb56": "photo-07.jpg",
-    "lxbc60": "photo-02.jpg",
-    "rzsy35": "photo-03.jpg",
-    "shyl53": "photo-02.jpg",
-    "rdhb85": "photo-03.jpg",
-    "rhyh38": "photo-04.jpg",
-}
 
 BRANDS = {
     "MITSUBISHI": "Mitsubishi",
@@ -267,68 +242,31 @@ def download_thumb(file_id: str, dest: Path) -> bool:
         return False
 
 
-def pick_source_dir(plate: str) -> Path | None:
-    plate_l = plate.lower()
-    if RG_UPLOADS.is_dir():
-        matches = [d for d in RG_UPLOADS.iterdir() if d.is_dir() and plate_l in d.name.lower()]
-        if matches:
-            return sorted(matches, key=lambda p: len(p.name))[0]
-    inv = RG_INVENTORY / plate_l
-    if inv.is_dir():
-        return inv
-    return None
-
-
-def order_source_images(src: Path, plate: str) -> list[Path]:
-    imgs = [
-        p
-        for p in src.iterdir()
+def local_photos(plate: str) -> list[str]:
+    dest = STOCK_DIR / plate.lower()
+    if not dest.is_dir():
+        return []
+    return [
+        f"/cars/stock/{plate.lower()}/{p.name}"
+        for p in sorted(dest.iterdir())
         if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"}
     ]
-    cover = FRONT_COVER_BY_PLATE.get(plate.lower(), "").lower()
-
-    def rank(p: Path) -> tuple[int, str]:
-        name = p.name.lower()
-        if cover and name == cover:
-            return (0, name)
-        if re.search(r"photo-0?2\.", name):
-            return (1, name)
-        if re.search(r"photo-0?1\.", name):
-            return (2, name)
-        if re.search(r"photo-0?7\.", name):
-            return (3, name)
-        return (4, name)
-
-    return sorted(imgs, key=rank)
 
 
 def collect_photos(plate: str, drive_folders: dict[str, str]) -> list[str]:
+    existing = local_photos(plate)
+    if existing:
+        return existing
     dest = STOCK_DIR / plate.lower()
-    if dest.exists():
-        shutil.rmtree(dest)
     dest.mkdir(parents=True, exist_ok=True)
     copied = 0
-    src = pick_source_dir(plate)
-    if src:
-        for img in order_source_images(src, plate):
-            target = dest / f"{copied:02d}{img.suffix.lower()}"
-            shutil.copy2(img, target)
-            copied += 1
-    if copied == 0 and plate in drive_folders:
+    if plate in drive_folders:
         for i, file_id in enumerate(scrape_drive_photos(drive_folders[plate])):
             target = dest / f"{i:02d}.jpg"
             if download_thumb(file_id, target):
                 copied += 1
     if copied:
-        return [
-            f"/cars/stock/{plate.lower()}/{p.name}"
-            for p in sorted(dest.iterdir())
-            if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"}
-        ]
-    if plate in drive_folders:
-        thumbs = scrape_drive_photos(drive_folders[plate])
-        if thumbs:
-            return [f"https://drive.google.com/thumbnail?id={fid}&sz=w1200" for fid in thumbs]
+        return local_photos(plate)
     return []
 
 
@@ -369,7 +307,8 @@ def write_cars_ts(items: list[dict], with_photos: int):
   }}"""
         )
     OUT_TS.write_text(
-        """export type Car = {
+        """/** Stock de Unidades Chile Automotriz. */
+export type Car = {
   id: string;
   unidad: string;
   marca: string;
@@ -417,10 +356,12 @@ export function featuredCars() {
 
 def main():
     items, skipped, live = load_rows()
+    allowed = {c["plate"] for c in items}
     drive_folders: dict[str, str] = {}
     drive_ok = False
     try:
-        drive_folders = scrape_drive_folders(DRIVE_FOLDER_ID)
+        scraped = scrape_drive_folders(DRIVE_FOLDER_ID)
+        drive_folders = {plate: fid for plate, fid in scraped.items() if plate in allowed}
         drive_ok = bool(drive_folders)
     except Exception:
         drive_folders = {}
@@ -441,6 +382,7 @@ def main():
         "driveOk": drive_ok,
         "withPhotos": with_photos,
         "withoutPhotos": len(items) - with_photos,
+        "sheet": "UNIDADES CHILE",
     }
     (ROOT / ".cache" / "import-stock-summary.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"

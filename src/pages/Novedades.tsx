@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useData } from "../store/DataProvider";
 import { SafeImg } from "../admin/ui";
+import { PageTitle } from "../components/PageTitle";
 
 export function Novedades() {
   const { publications } = useData();
@@ -10,6 +11,10 @@ export function Novedades() {
 
   return (
     <div className="mx-auto max-w-[900px] px-4 py-10 pb-28 sm:px-6 sm:py-16">
+      <PageTitle
+        title="Novedades | Unidades Chile"
+        description="Notas, llegadas y campañas de Unidades Chile en Puerto Montt."
+      />
       <p className="eyebrow">Novedades</p>
       <h1 className="mt-3 text-[32px] font-semibold tracking-[-0.03em] sm:text-5xl">Del patio</h1>
       <p className="mt-4 max-w-xl text-white/60">Notas, llegadas y campañas de Unidades Chile.</p>

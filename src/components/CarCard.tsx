@@ -3,6 +3,7 @@ import { Heart } from "lucide-react";
 import type { Car } from "../data/cars";
 import { clp, km, savingsLabel } from "../lib/format";
 import { useFavorites } from "./Favorites";
+import { useCompare } from "./Compare";
 import { SafeImg } from "../admin/ui";
 
 type Props = {
@@ -32,7 +33,9 @@ function PhotoWell({
 
 export function CarCard({ car, layout = "grid" }: Props) {
   const { has, toggle } = useFavorites();
+  const compare = useCompare();
   const saved = has(car.id);
+  const compared = compare.has(car.id);
   const badge = savingsLabel(car.precio, car.mercado);
   const alt = `${car.marca} ${car.modelo}`;
 
@@ -64,6 +67,19 @@ export function CarCard({ car, layout = "grid" }: Props) {
       <Link to={`/catalogo/${car.id}`} className="block">
         <PhotoWell src={car.imagenes[0]} alt={alt} className="aspect-[4/3] w-full" />
       </Link>
+      <button
+        type="button"
+        onClick={() => {
+          if (!compare.toggle(car.id) && !compared) {
+            window.alert("Puedes comparar hasta 3 unidades.");
+          }
+        }}
+        className={`absolute left-3 top-3 z-10 rounded-full px-2.5 py-1 text-[10px] font-medium backdrop-blur-sm ${
+          compared ? "bg-brand text-white" : "bg-black/35 text-white/90"
+        }`}
+      >
+        {compared ? "En comparador" : "Comparar"}
+      </button>
       <button
         type="button"
         onClick={() => toggle(car.id)}

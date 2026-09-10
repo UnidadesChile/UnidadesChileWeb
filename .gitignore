@@ -4,6 +4,7 @@ dist
 *.log
 .vercel
 .cache
+__pycache__/
 *.zip
 linea-grafica/
 ENTREGA LINEA GRAFICA-20260901T230224Z-1-001.zip

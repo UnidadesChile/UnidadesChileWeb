@@ -1,8 +1,13 @@
 import { TrustBar } from "../components/TrustBar";
+import { PageTitle } from "../components/PageTitle";
 
 export function Nosotros() {
   return (
     <div>
+      <PageTitle
+        title="Nosotros | Unidades Chile"
+        description="Automotora de usados en Puerto Montt. Precio bajo mercado e inspección 180 puntos."
+      />
       <section className="mx-auto max-w-[1280px] px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
         <p className="eyebrow">La automotora</p>
         <h1 className="mt-4 max-w-3xl text-[28px] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-5xl lg:text-6xl">

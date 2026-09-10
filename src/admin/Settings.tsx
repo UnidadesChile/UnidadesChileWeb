@@ -8,6 +8,7 @@ import {
 } from "../store/repo";
 import { useData } from "../store/DataProvider";
 import { downloadText } from "../lib/stats";
+import { STOCK_SOURCES } from "../lib/sources";
 import { AdminField } from "./ui";
 
 export function SettingsPage() {
@@ -113,6 +114,30 @@ export function SettingsPage() {
         >
           Recargar stock oficial
         </button>
+      </div>
+
+      <div className="mt-8 rounded-2xl border border-white/10 p-5">
+        <h2 className="font-semibold">Origen del stock</h2>
+        <p className="mt-2 text-sm text-white/45">
+          Este sitio es independiente. El catálogo sale solo de la hoja{" "}
+          <strong className="text-white">{STOCK_SOURCES.sheetName}</strong>.
+          Las fotos viven en este proyecto. Cuando migres a la cuenta de empresa,
+          conecta estos IDs ahí, no en una cuenta personal.
+        </p>
+        <ul className="mt-4 space-y-2 text-xs text-white/50">
+          <li>
+            Planilla:{" "}
+            <a href={STOCK_SOURCES.sheetUrl} target="_blank" rel="noreferrer" className="text-brand">
+              {STOCK_SOURCES.sheetName}
+            </a>
+          </li>
+          <li>
+            Fotos:{" "}
+            <a href={STOCK_SOURCES.driveFolderUrl} target="_blank" rel="noreferrer" className="text-brand">
+              fotos por patente
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   );

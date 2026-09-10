@@ -2,6 +2,8 @@ import { Navigate, Route, Routes, useLocation, useParams } from "react-router-do
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { MobileNav } from "./components/MobileNav";
+import { ChatWidget } from "./components/ChatWidget";
+import { CookieBanner } from "./components/CookieBanner";
 import { Home } from "./pages/Home";
 import { Inventario } from "./pages/Inventario";
 import { Auto } from "./pages/Auto";
@@ -10,6 +12,9 @@ import { Financia } from "./pages/Financia";
 import { Nosotros } from "./pages/Nosotros";
 import { Novedades } from "./pages/Novedades";
 import { Novedad } from "./pages/Novedad";
+import { Comparador } from "./pages/Comparador";
+import { Contacto } from "./pages/Contacto";
+import { AvisoCredito, CondicionesReserva, Cookies, Privacidad, Terminos } from "./pages/Legal";
 import { AdminApp } from "./admin/AdminApp";
 
 function LegacyAuto() {
@@ -38,11 +43,20 @@ export function App() {
           <Route path="/nosotros" element={<Nosotros />} />
           <Route path="/novedades" element={<Novedades />} />
           <Route path="/novedades/:slug" element={<Novedad />} />
+          <Route path="/comparador" element={<Comparador />} />
+          <Route path="/contacto" element={<Contacto />} />
+          <Route path="/privacidad" element={<Privacidad />} />
+          <Route path="/terminos" element={<Terminos />} />
+          <Route path="/cookies" element={<Cookies />} />
+          <Route path="/aviso-credito" element={<AvisoCredito />} />
+          <Route path="/condiciones-reserva" element={<CondicionesReserva />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <Footer />
       <MobileNav />
+      <ChatWidget />
+      <CookieBanner />
     </div>
   );
 }

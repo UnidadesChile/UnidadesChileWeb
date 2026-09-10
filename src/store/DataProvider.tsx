@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { cars } from "../data/cars";
 import { SITE } from "../lib/config";
+import { isUnidadesChileStock } from "../lib/sources";
 import {
   getSettings,
   leadsRepo,
@@ -67,7 +68,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       mediaRepo.all(),
       getSettings(),
     ]);
-    if (v.length) setVehicles(v);
+    if (v.length) setVehicles(v.filter((car) => isUnidadesChileStock(car.unidad)));
     setPublications(p);
     setLeads(l);
     setMedia(m);
@@ -87,7 +88,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       leads,
       media,
       settings,
-      published: vehicles.filter((v) => v.status === "publicado"),
+      published: vehicles.filter((v) => v.status === "publicado" && isUnidadesChileStock(v.unidad)),
       refresh,
       saveVehicle: async (v) => {
         await vehiclesRepo.save(v);

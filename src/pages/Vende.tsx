@@ -5,6 +5,7 @@ import { clp } from "../lib/format";
 import { waLink } from "../lib/config";
 import { newLead } from "../lib/leads";
 import { useData } from "../store/DataProvider";
+import { PageTitle } from "../components/PageTitle";
 
 const years = Array.from({ length: 16 }, (_, i) => 2026 - i);
 
@@ -32,6 +33,10 @@ export function Vende() {
 
   return (
     <div className="relative overflow-x-clip">
+      <PageTitle
+        title="Vende tu auto | Unidades Chile"
+        description="Te compramos el auto hoy en Puerto Montt. Oferta en 15 minutos y pago al instante."
+      />
       <div className="absolute inset-0 bg-[url('/cars/bg-vende.png')] bg-cover bg-center opacity-40" />
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/88 to-black/55" />
 

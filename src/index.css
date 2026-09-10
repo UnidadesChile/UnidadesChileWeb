@@ -108,3 +108,18 @@ iframe {
   background: #ff0c40;
   box-shadow: 0 0 18px 4px rgba(255, 12, 64, 0.7), 0 0 50px 8px rgba(255, 12, 64, 0.25);
 }
+
+@media print {
+  header,
+  footer,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  body,
+  #root {
+    background: #fff !important;
+    color: #111 !important;
+  }
+}

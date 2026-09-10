@@ -9,6 +9,7 @@ import {
   cuotaDesde,
   simulateCredit,
 } from "../lib/autofin";
+import { PageTitle } from "../components/PageTitle";
 
 export function Financia() {
   const { published, saveLead, settings } = useData();
@@ -25,6 +26,10 @@ export function Financia() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-10 pb-28 sm:px-6 sm:py-16 lg:px-8">
+      <PageTitle
+        title="Financia | Unidades Chile"
+        description="Simula crédito Autofin con la misma cuota que en sucursal. Pie desde 20% y hasta 48 meses."
+      />
       <p className="eyebrow">Crédito Autofin</p>
       <h1 className="mt-3 max-w-2xl text-[28px] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-5xl">
         La misma cuota
@@ -112,7 +117,10 @@ export function Financia() {
           <p className="mt-5 text-[12px] leading-relaxed text-white/40">
             Primera cuota ~{sim.deferredFirstPaymentDays} días. Calibrado contra Autofin.cl
             (API Trinidad). En sucursal la cuota puede confirmarse o ajustarse según
-            evaluación.
+            evaluación.{" "}
+            <Link to="/aviso-credito" className="text-white/70 underline underline-offset-2">
+              Aviso de crédito
+            </Link>
           </p>
           {sim.warnings.map((w) => (
             <p key={w} className="mt-2 text-[12px] text-amber-200/80">

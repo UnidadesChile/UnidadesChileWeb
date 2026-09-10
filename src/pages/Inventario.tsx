@@ -1,5 +1,9 @@
 import { useMemo, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { CarCard } from "../components/CarCard";
+import { PageTitle } from "../components/PageTitle";
+import { LeadModals } from "../components/LeadModals";
+import { useCompare } from "../components/Compare";
 import { CarFront, Cog, Gauge, Layers } from "lucide-react";
 import { Emblem } from "../components/Logo";
 import { usePublishedCars } from "../store/DataProvider";
@@ -21,6 +25,8 @@ export function Inventario() {
   const [transmision, setTransmision] = useState("");
   const [traccion, setTraccion] = useState("");
   const [sort, setSort] = useState<Sort>("ahorro");
+  const [pedido, setPedido] = useState(false);
+  const compare = useCompare();
 
   const list = useMemo(() => {
     const filtered = cars.filter((c) => {
@@ -43,6 +49,10 @@ export function Inventario() {
 
   return (
     <div className="relative mx-auto max-w-[1280px] px-4 pb-28 pt-8 sm:px-6 md:px-8">
+      <PageTitle
+        title="Catálogo | Unidades Chile"
+        description="Stock de Unidades Chile en Puerto Montt. Pickups, furgones y livianos seleccionados."
+      />
       <div className="flex items-end justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-[28px] font-semibold leading-none tracking-[-0.03em] sm:text-[48px] md:text-[64px]">
@@ -138,7 +148,33 @@ export function Inventario() {
             <CarCard key={car.id} car={car} />
           ))}
         </div>
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#141414] px-4 py-4">
+          <p className="text-sm text-white/60">¿No está lo que buscas?</p>
+          <button
+            type="button"
+            onClick={() => setPedido(true)}
+            className="rounded-full bg-brand px-4 py-2 text-[12px] font-medium"
+          >
+            Pedir un auto
+          </button>
+        </div>
       </div>
+
+      {compare.ids.length > 0 && (
+        <div className="fixed inset-x-3 bottom-[5.25rem] z-40 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-full border border-white/10 bg-black/90 px-4 py-2.5 backdrop-blur md:bottom-8">
+          <p className="text-[12px] text-white/70">{compare.ids.length} de 3 en el comparador</p>
+          <div className="flex gap-2">
+            <button type="button" onClick={compare.clear} className="text-[11px] text-white/40">
+              Limpiar
+            </button>
+            <Link to="/comparador" className="rounded-full bg-brand px-3 py-1.5 text-[12px] font-medium">
+              Comparar
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {pedido && <LeadModals kind="pedido" onClose={() => setPedido(false)} />}
 
       <Emblem className="fixed bottom-[5.75rem] right-3 z-40 hidden h-10 w-10 sm:block md:bottom-8 md:right-8 md:h-12 md:w-12" />
     </div>

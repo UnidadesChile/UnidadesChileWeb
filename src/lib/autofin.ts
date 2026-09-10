@@ -1,6 +1,6 @@
 /**
  * Motor de simulación — Unidades Chile × Autofin (Trinidad / spider fee).
- * Misma lógica que RG Motors, calibrada contra POST https://webapi.autofin.cl/v1/spider/fee
+ * Calibrado contra POST https://webapi.autofin.cl/v1/spider/fee
  * (producto AUTOPLAN USADOS, Desgravamen + Cesantía ON, sin AutoProtegido):
  *
  *   $15.000.000 · pie $3.000.000 · 48m · usado → ValorCuota 493.197 · CAE 38,31%
@@ -239,7 +239,7 @@ export function estimateMonthlyAutofin(
   }).monthlyPayment;
 }
 
-/** Alias para fichas y listados (pie 20% · 48 meses, igual que RG Motors). */
+/** Alias para fichas y listados (pie 20% · 48 meses). */
 export function cuotaDesde(precio: number, piePct = 20, plazo = 48) {
   return estimateMonthlyAutofin(precio, plazo, piePct / 100);
 }

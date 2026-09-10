@@ -12,6 +12,12 @@ const links = [
   { to: "/nosotros", label: "Nosotros" },
 ];
 
+const extraLinks = [
+  { to: "/comparador", label: "Comparador" },
+  { to: "/contacto", label: "Contacto" },
+  { to: "/novedades", label: "Novedades" },
+];
+
 export function Header() {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
@@ -82,7 +88,7 @@ export function Header() {
       {open && (
         <div className="border-t border-white/10 bg-black px-4 py-5 sm:px-6 lg:hidden">
           <nav className="flex flex-col gap-4">
-            {links.map((l) => (
+            {[...links, ...extraLinks].map((l) => (
               <NavLink
                 key={l.to}
                 to={l.to}
