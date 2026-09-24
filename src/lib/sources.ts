@@ -10,7 +10,7 @@ export const STOCK_SOURCES = {
   skipStatuses: ["VENDIDO", "ENTREGADO", "VTA", "RESERVADO"],
 } as const;
 
-export const SITE_URL = "https://unidades-chile.vercel.app";
+export const SITE_URL = "https://www.unidadeschile.cl";
 
 /** Únicas patentes publicables: hoja UNIDADES CHILE. */
 export const UNIDADES_CHILE_PLATES = new Set([

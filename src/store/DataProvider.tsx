@@ -1,6 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { cars } from "../data/cars";
 import { SITE } from "../lib/config";
+import { fetchUcCatalogFromSupabase } from "../lib/catalogSupabase";
+import { isSupabaseConfigured } from "../lib/supabase";
 import { isUnidadesChileStock } from "../lib/sources";
 import {
   getSettings,
@@ -30,6 +32,7 @@ type DataCtx = {
   media: MediaAsset[];
   settings: SiteSettings;
   published: Vehicle[];
+  catalogSource: "supabase" | "local";
   refresh: () => Promise<void>;
   saveVehicle: (v: Vehicle) => Promise<void>;
   deleteVehicle: (id: string) => Promise<void>;
@@ -55,12 +58,18 @@ const fallbackSettings: SiteSettings = {
 export function DataProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [vehicles, setVehicles] = useState<Vehicle[]>(seedVehicles);
+  const [catalogSource, setCatalogSource] = useState<"supabase" | "local">("local");
   const [publications, setPublications] = useState<Publication[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [media, setMedia] = useState<MediaAsset[]>([]);
   const [settings, setSettingsState] = useState<SiteSettings>(fallbackSettings);
 
   const refresh = useCallback(async () => {
+    let remote: Vehicle[] | null = null;
+    if (isSupabaseConfigured()) {
+      remote = await fetchUcCatalogFromSupabase();
+    }
+
     const [v, p, l, m, s] = await Promise.all([
       vehiclesRepo.all(),
       publicationsRepo.all(),
@@ -68,7 +77,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
       mediaRepo.all(),
       getSettings(),
     ]);
-    if (v.length) setVehicles(v.filter((car) => isUnidadesChileStock(car.unidad)));
+
+    if (remote !== null) {
+      setVehicles(remote.filter((car) => isUnidadesChileStock(car.unidad)));
+      setCatalogSource("supabase");
+    } else if (v.length) {
+      setVehicles(v.filter((car) => isUnidadesChileStock(car.unidad)));
+      setCatalogSource("local");
+    }
     setPublications(p);
     setLeads(l);
     setMedia(m);
@@ -80,6 +96,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     seedIfNeeded().then(refresh).catch(console.error);
   }, [refresh]);
 
+  const published = useMemo(
+    () => vehicles.filter((v) => v.status === "publicado" && isUnidadesChileStock(v.unidad)),
+    [vehicles],
+  );
+
   const value = useMemo<DataCtx>(
     () => ({
       ready,
@@ -88,7 +109,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       leads,
       media,
       settings,
-      published: vehicles.filter((v) => v.status === "publicado" && isUnidadesChileStock(v.unidad)),
+      published,
+      catalogSource,
       refresh,
       saveVehicle: async (v) => {
         await vehiclesRepo.save(v);
@@ -129,12 +151,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
         await refresh();
       },
       bumpViews: async (id) => {
+        if (catalogSource === "supabase") {
+          setVehicles((prev) =>
+            prev.map((x) => (x.id === id ? { ...x, vistas: x.vistas + 1 } : x)),
+          );
+          return;
+        }
         const v = vehicles.find((x) => x.id === id);
         if (!v) return;
         await vehiclesRepo.save({ ...v, vistas: v.vistas + 1 });
       },
     }),
-    [ready, vehicles, publications, leads, media, settings, refresh],
+    [ready, vehicles, publications, leads, media, settings, published, catalogSource, refresh],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

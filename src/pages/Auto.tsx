@@ -15,8 +15,8 @@ import { useData } from "../store/DataProvider";
 
 export function Auto() {
   const { id } = useParams();
-  const { vehicles, bumpViews, saveLead, settings } = useData();
-  const car = id ? vehicles.find((v) => v.id === id) : undefined;
+  const { published, bumpViews, saveLead, settings } = useData();
+  const car = id ? published.find((v) => v.id === id) : undefined;
   const [shot, setShot] = useState(0);
   const [alerta, setAlerta] = useState(false);
   const compare = useCompare();

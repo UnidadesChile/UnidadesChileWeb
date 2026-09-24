@@ -194,9 +194,16 @@ export async function exportBackup() {
     publicationsRepo.all(),
     leadsRepo.all(),
     mediaRepo.all(),
-    idbGetAll("settings"),
+    idbGetAll<{ id: string }>("settings"),
   ]);
-  return { exportedAt: nowIso(), vehicles, publications, leads, media, settings };
+  return {
+    exportedAt: nowIso(),
+    vehicles,
+    publications,
+    leads,
+    media,
+    settings: settings.filter((row) => row.id !== AUTH_ID),
+  };
 }
 
 export async function reseedCatalog() {
@@ -244,7 +251,9 @@ export async function importBackup(dump: {
   }
   if (dump.settings?.length) {
     for (const row of dump.settings) {
-      if (row && typeof row.id === "string") await idbPut("settings", row);
+      if (row && typeof row.id === "string" && row.id !== AUTH_ID) {
+        await idbPut("settings", row);
+      }
     }
   }
 }

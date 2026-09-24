@@ -48,9 +48,6 @@ export function AdminLogin() {
         <button type="submit" className="mt-6 w-full rounded-full bg-brand py-3 text-sm font-semibold">
           Ingresar
         </button>
-        <p className="mt-4 text-[11px] text-white/35">
-          Acceso inicial: <span className="text-white/60">admin / Unidades2026</span>
-        </p>
       </form>
     </div>
   );

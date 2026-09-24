@@ -8,3 +8,7 @@ __pycache__/
 *.zip
 linea-grafica/
 ENTREGA LINEA GRAFICA-20260901T230224Z-1-001.zip
+.env
+.env.*
+!.env.example
+scratch/
